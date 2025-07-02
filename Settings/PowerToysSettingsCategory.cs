@@ -81,6 +81,12 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(isToggle);
             isToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { isEnabled.Value = !isEnabled.Value; });
 
+            var fcEnabled = Plugin.PublicConfig.Bind("FreeCamera", "Enabled", true, "Enable/disable the 3D camera feature.");
+            MenuToggle fcToggle = CreateToggle("FCToggle", "3D Camera", fcEnabled.Value, Vector3.zero, 300f);
+            fcToggle.transform.SetParent(page2.transform, false);
+            SetupToggleLayout(fcToggle);
+            fcToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { fcEnabled.Value = !fcEnabled.Value; });
+
             // Pagination controls
             var paginationContainer = new GameObject("Pagination", typeof(RectTransform));
             paginationContainer.transform.SetParent(transform, false);

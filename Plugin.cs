@@ -46,6 +46,7 @@ namespace BaldiPowerToys
             featureHolder.AddComponent<NoIncorrectAnswersFeature>();
             featureHolder.AddComponent<AdjustPlayerSpeedFeature>();
             featureHolder.AddComponent<InfiniteStaminaFeature>();
+            featureHolder.AddComponent<FreeCameraFeature>();
 
             var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 

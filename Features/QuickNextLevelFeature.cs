@@ -17,6 +17,8 @@ namespace BaldiPowerToys.Features
         private float _confirmationTimer;
         private const float ConfirmationTimeout = 5f;
         private const string FEATURE_ID = "quick_next_level";
+        
+        private bool _isLoadingNextLevel;
 
         void Awake()
         {
@@ -36,7 +38,12 @@ namespace BaldiPowerToys.Features
             if (next.name == "MainMenu")
             {
                 _confirmationPending = false;
+                _isLoadingNextLevel = false;
                 PowerToysNotification.Instance.Hide(FEATURE_ID);
+            }
+            else
+            {
+                _isLoadingNextLevel = false;
             }
         }
 
@@ -50,8 +57,23 @@ namespace BaldiPowerToys.Features
                 return;
             }
 
+            if (Singleton<CoreGameManager>.Instance != null && !Singleton<CoreGameManager>.Instance.readyToStart)
+            {
+                return;
+            }
+
             if (Input.GetKeyDown(_nextLevelKey.Value))
             {
+                if (_isLoadingNextLevel)
+                {
+                    string message = PowerToys.IsCyrillicPlusLoaded 
+                        ? "<color=yellow><b>Загрузка...</b></color>\nПодождите, пока загрузится следующий уровень."
+                        : "<color=yellow><b>Loading...</b></color>\nPlease wait until the next level loads.";
+                    
+                    PowerToys.ShowInfo(message, 2f, FEATURE_ID);
+                    return;
+                }
+
                 if (IsSkippingDisallowed())
                 {
                     ShowWarning();
@@ -106,6 +128,8 @@ namespace BaldiPowerToys.Features
         
         private void SkipLevel()
         {
+            _isLoadingNextLevel = true;
+            
             string message = PowerToys.IsCyrillicPlusLoaded 
                 ? "<color=#4CFF4C><b>Уровень пропущен!</b></color>"
                 : "<color=#4CFF4C><b>Level skipped!</b></color>";

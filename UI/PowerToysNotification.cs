@@ -188,8 +188,11 @@ namespace BaldiPowerToys.UI
             if (_currentState == UIState.Hidden || _currentNotification == null || 
                 (Singleton<CoreGameManager>.Instance != null && Singleton<CoreGameManager>.Instance.Paused)) 
                 return;
+                
+            if (Singleton<ElevatorScreen>.Instance != null && Singleton<ElevatorScreen>.Instance.gameObject.activeSelf)
+                return;
 
-            GUI.depth = 2;
+            GUI.depth = 0;
 
             if (_textStyle == null || _boldStyle == null)
             {

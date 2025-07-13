@@ -9,20 +9,17 @@ namespace BaldiPowerToys.Features
 {
     public class FreeCameraFeature : Feature
     {
+        private const string FEATURE_ID = "free_camera";
+        
         private static ConfigEntry<bool> _configIsEnabled = null!;
         private static ConfigEntry<float> _configSensitivity = null!;
         private static ConfigEntry<KeyCode> _configToggleKey = null!;
 
-        private static bool _isFeatureEnabled;
+        private static bool _isCameraActive;
 
-        private bool _isShowingNotification;
-        private float _animationProgress;
-        private float _notificationTimer;
-        private const float NotificationTimeout = 2f;
-
-        private GUIStyle? _notificationStyle;
-        private Texture2D? _backgroundTexture;
-        private Texture2D? _borderTexture;
+        private static readonly Color EnabledBarColor = new Color(0.2f, 0.6f, 1f);
+        private static readonly Color DisabledBarColor = new Color(0.6f, 0.1f, 0.2f);
+        private static readonly Color BackgroundColor = new Color(0.1f, 0.15f, 0.2f, 0.95f);
 
         public override void Init(Harmony harmony)
         {
@@ -30,15 +27,9 @@ namespace BaldiPowerToys.Features
             _configSensitivity = PowerToys.Config.Bind("FreeCamera", "Sensitivity", 1f, "Mouse sensitivity for the 3D camera.");
             _configToggleKey = PowerToys.Config.Bind("FreeCamera", "ToggleKey", KeyCode.F1, "Key to toggle the 3D camera.");
 
-            _isFeatureEnabled = _configIsEnabled.Value;
+            _isCameraActive = false;
 
             harmony.PatchAll(typeof(CameraPatch));
-
-            _configIsEnabled.SettingChanged += (_, __) =>
-            {
-                _isFeatureEnabled = _configIsEnabled.Value;
-            };
-
             SceneManager.activeSceneChanged += OnSceneChanged;
         }
 
@@ -54,88 +45,43 @@ namespace BaldiPowerToys.Features
         {
             if (!_configIsEnabled.Value)
             {
-                _isFeatureEnabled = false;
+                if (_isCameraActive)
+                {
+                    _isCameraActive = false;
+                    ShowNotification();
+                }
                 return;
             }
 
             if (Input.GetKeyDown(_configToggleKey.Value))
             {
-                _isFeatureEnabled = !_isFeatureEnabled;
+                _isCameraActive = !_isCameraActive;
                 ShowNotification();
             }
-
-            UpdateNotificationAnimation();
-        }
-
-        public override void OnGUI()
-        {
-            if (!_isShowingNotification || (Singleton<CoreGameManager>.Instance != null && Singleton<CoreGameManager>.Instance.Paused)) return;
-
-            if (_notificationStyle == null)
-            {
-                _notificationStyle = new GUIStyle(GUI.skin.label)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    fontSize = 24,
-                    normal = { textColor = Color.white }
-                };
-                CreateTextures();
-            }
-
-            string enabledText = PowerToys.IsRussian ? "Включена" : "Enabled";
-            string disabledText = PowerToys.IsRussian ? "Выключена" : "Disabled";
-            string featureName = PowerToys.IsRussian ? "3D Камера" : "3D Camera";
-            string color = _isFeatureEnabled ? "green" : "red";
-            string statusText = _isFeatureEnabled ? enabledText : disabledText;
-            string text = $"{featureName}: <color={color}>{statusText}</color>";
-
-            Vector2 textSize = _notificationStyle.CalcSize(new GUIContent(text));
-            float width = textSize.x + 40f;
-            float height = 60f;
-
-            float screenWidth = Screen.width;
-            float screenHeight = Screen.height;
-
-            float startY = screenHeight;
-            float endY = screenHeight - height - 20f;
-            float currentY = Mathf.Lerp(startY, endY, _animationProgress);
-
-            Rect rect = new Rect((screenWidth - width) / 2f, currentY, width, height);
-
-            if (_borderTexture != null) GUI.DrawTexture(rect, _borderTexture);
-            if (_backgroundTexture != null) GUI.DrawTexture(new Rect(rect.x + 2f, rect.y + 2f, rect.width - 4f, rect.height - 4f), _backgroundTexture);
-
-            Rect textRect = new Rect(rect.x, rect.y, rect.width, rect.height);
-            GuiUtils.DrawTextWithShadow(textRect, text, _notificationStyle);
         }
 
         private void ShowNotification()
         {
-            _isShowingNotification = true;
-            _notificationTimer = NotificationTimeout;
-        }
+            string cameraText = PowerToys.IsCyrillicPlusLoaded ? "3D Камера" : "3D Camera";
+            string statusText = _isCameraActive 
+                ? (PowerToys.IsCyrillicPlusLoaded ? "Включена" : "Enabled")
+                : (PowerToys.IsCyrillicPlusLoaded ? "Выключена" : "Disabled");
 
-        private void UpdateNotificationAnimation()
-        {
-            if (_notificationTimer > 0)
-            {
-                _notificationTimer -= Time.deltaTime;
-                _animationProgress = Mathf.Min(1f, _animationProgress + Time.deltaTime * 4f);
-            }
-            else
-            {
-                _animationProgress = Mathf.Max(0f, _animationProgress - Time.deltaTime * 4f);
-                if (_animationProgress == 0f)
-                {
-                    _isShowingNotification = false;
-                }
-            }
-        }
+            string status = _isCameraActive
+                ? $"<color=#80D5FF><b>{statusText}</b></color>"
+                : $"<color=#FF6060><b>{statusText}</b></color>";
 
-        private void CreateTextures()
-        {
-            _backgroundTexture = GuiUtils.CreateGradientTexture(128, new Color(0.2f, 0.2f, 0.2f, 0.95f), new Color(0.1f, 0.1f, 0.1f, 0.95f));
-            _borderTexture = GuiUtils.CreateSolidTexture(new Color(0.8f, 0.8f, 0.8f, 0.7f));
+            string keyHint = $"[{_configToggleKey.Value}]";
+            
+            string message = $"{cameraText} {status}\n<size=16><color=#888888>{keyHint}</color></size>";
+
+            PowerToys.ShowNotification(
+                message,
+                duration: 1.0f,
+                barColor: _isCameraActive ? EnabledBarColor : DisabledBarColor,
+                backgroundColor: BackgroundColor,
+                sourceId: FEATURE_ID
+            );
         }
 
         [HarmonyPatch(typeof(GameCamera))]
@@ -153,7 +99,7 @@ namespace BaldiPowerToys.Features
             [HarmonyPatch("LateUpdate")]
             private static void LateUpdate_Postfix(GameCamera __instance)
             {
-                if (!_isFeatureEnabled || !__instance.Controllable) return;
+                if (!_configIsEnabled.Value || !_isCameraActive || !__instance.Controllable) return;
 
                 if (playerMovement == null)
                 {

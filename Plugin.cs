@@ -9,6 +9,7 @@ using MTM101BaldAPI;
 using System.Reflection;
 using BepInEx.Bootstrap;
 using HarmonyLib;
+using System.Collections.Generic;
 
 namespace BaldiPowerToys
 {
@@ -17,14 +18,31 @@ namespace BaldiPowerToys
     public class Plugin : BaseUnityPlugin
     {
         public static ConfigFile PublicConfig { get; private set; } = null!;
-        public static bool IsCyrillicPlusLoaded { get; private set; }
         public static Font? ComicSans { get; private set; }
 
-        void Awake()
+        private static readonly WaitUntil WaitForAssetManager;
+        private readonly List<Feature> _features = new List<Feature>();
+        private GameObject? _featureHolder;
+
+        static Plugin()
+        {
+            WaitForAssetManager = new WaitUntil(() => GetAssetManager() != null);
+        }
+
+        private void Awake()
         {
             PublicConfig = Config;
-            IsCyrillicPlusLoaded = Chainloader.PluginInfos.ContainsKey("blayms.tbb.baldiplus.cyrillic");
+            InitializeFont();
+            InitializeFeatures();
+            PatchFeatures();
 
+            StartCoroutine(WaitForAPI());
+
+            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
+        }
+
+        private void InitializeFont()
+        {
             try
             {
                 ComicSans = Font.CreateDynamicFontFromOSFont("Comic Sans MS", 28);
@@ -32,55 +50,80 @@ namespace BaldiPowerToys
             catch
             {
                 ComicSans = null;
+                Logger.LogWarning("Failed to load Comic Sans MS font");
             }
+        }
 
-            GameObject featureHolder = new GameObject("BaldiPowerToys_Features");
-            DontDestroyOnLoad(featureHolder);
+        private void InitializeFeatures()
+        {
+            _featureHolder = new GameObject("BaldiPowerToys_Features");
+            DontDestroyOnLoad(_featureHolder);
 
-            PowerToys.Init(Config, IsCyrillicPlusLoaded, featureHolder);
+            PowerToys.Init(Config, false, _featureHolder);
 
-            featureHolder.AddComponent<QuickNextLevelFeature>();
-            featureHolder.AddComponent<QuickFillMapFeature>();
-            featureHolder.AddComponent<QuickResultsFeature>();
-            featureHolder.AddComponent<GiveMoneyFeature>();
-            featureHolder.AddComponent<NoIncorrectAnswersFeature>();
-            featureHolder.AddComponent<AdjustPlayerSpeedFeature>();
-            featureHolder.AddComponent<InfiniteStaminaFeature>();
-            featureHolder.AddComponent<FreeCameraFeature>();
+            var featureTypes = new[] 
+            {
+                typeof(QuickNextLevelFeature),
+                typeof(QuickFillMapFeature),
+                typeof(QuickResultsFeature),
+                typeof(GiveMoneyFeature),
+                typeof(NoIncorrectAnswersFeature),
+                typeof(AdjustPlayerSpeedFeature),
+                typeof(InfiniteStaminaFeature),
+                typeof(FreeCameraFeature)
+            };
 
+            foreach (var featureType in featureTypes)
+            {
+                if (_featureHolder.AddComponent(featureType) is Feature feature)
+                {
+                    _features.Add(feature);
+                }
+            }
+        }
+
+        private void PatchFeatures()
+        {
             var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
-            foreach (var feature in featureHolder.GetComponents<Feature>())
+            foreach (var feature in _features)
             {
                 feature.Init(harmony);
             }
             
             harmony.PatchAll();
-
-            StartCoroutine(WaitForAPI());
-
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
         }
 
         private static object? GetAssetManager()
         {
-            FieldInfo field = typeof(MTM101BaldiDevAPI).GetField("AssetMan", BindingFlags.NonPublic | BindingFlags.Static);
-            if (field != null)
-            {
-                return field.GetValue(null);
-            }
-            return null;
+            return typeof(MTM101BaldiDevAPI)
+                .GetField("AssetMan", BindingFlags.NonPublic | BindingFlags.Static)?
+                .GetValue(null);
         }
 
         private IEnumerator WaitForAPI()
         {
-            yield return new WaitUntil(() => GetAssetManager() != null);
+            yield return WaitForAssetManager;
             CustomOptionsCore.OnMenuInitialize += OnMenuInitialize;
         }
 
-        void OnMenuInitialize(OptionsMenu menu, CustomOptionsHandler handler)
+        private void OnMenuInitialize(OptionsMenu menu, CustomOptionsHandler handler)
         {
             handler.AddCategory<PowerToysSettingsCategory>("PowerToys");
+        }
+
+        private void OnDestroy()
+        {
+            if (_featureHolder != null)
+            {
+                foreach (var feature in _features)
+                {
+                    feature.OnPluginDestroy();
+                }
+                Destroy(_featureHolder);
+            }
+            
+            CustomOptionsCore.OnMenuInitialize -= OnMenuInitialize;
         }
     }
 

@@ -151,7 +151,7 @@ namespace BaldiPowerToys.Features
             Rect boxRect = new Rect((Screen.width - boxWidth) / 2f, currentY, boxWidth, boxHeight);
 
             DrawBoxWithBorder(boxRect, _warningBackgroundTexture!, _warningBorderTexture!); 
-            string message = Plugin.IsCyrillicPlusLoaded ? "Превышен лимит денег" : "Money limit exceeded";
+            string message = PowerToys.IsCyrillicPlusLoaded ? "Превышен лимит денег" : "Money limit exceeded";
             DrawTextWithShadow(boxRect, message, _warningStyle);
         }
 

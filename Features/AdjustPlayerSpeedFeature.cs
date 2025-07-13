@@ -11,26 +11,18 @@ namespace BaldiPowerToys.Features
 {
     public class AdjustPlayerSpeedFeature : Feature
     {
+        private const string FEATURE_ID = "adjust_speed";
         private static ConfigEntry<bool> _configIsEnabled = null!;
         private static ConfigEntry<float> _configSpeedIncrement = null!;
-
         private static float _speedMultiplier = 1.0f;
-        private bool _isShowingNotification;
-        private float _animationProgress;
-        private float _notificationTimer;
-        private const float NotificationTimeout = 2f;
-
-        private GUIStyle? _notificationStyle;
-        private Texture2D? _backgroundTexture;
-        private Texture2D? _borderTexture;
-        private Texture2D? _timerBarBackgroundTexture;
-        private Texture2D? _timerBarFillTexture;
-        private const float BorderWidth = 2f;
 
         private static readonly ValueModifier _walkSpeedModifier = new ValueModifier(0f, 1f);
         private static readonly ValueModifier _runSpeedModifier = new ValueModifier(0f, 1f);
         private static bool _modifiersApplied;
         private static bool _levelReady;
+
+        private static readonly Color SpeedBarColor = new Color(1f, 0.9f, 0.2f);
+        private static readonly Color SpeedBgColor = new Color(0.15f, 0.15f, 0.15f, 0.95f);
 
         public override void Init(Harmony harmony)
         {
@@ -45,17 +37,25 @@ namespace BaldiPowerToys.Features
             Debug.Log($"[AdjustPlayerSpeed] Scene changed from '{current.name}' to '{next.name}'.");
             _modifiersApplied = false;
             _levelReady = false;
-            Debug.Log($"[AdjustPlayerSpeed] Modifiers flag and level ready flag reset. Current speed multiplier: {_speedMultiplier:F2}");
 
+            PowerToys.ClearNotifications();
+            
             if (next.name == "MainMenu")
             {
                 _speedMultiplier = 1.0f;
-                Debug.Log("[AdjustPlayerSpeed] Returned to MainMenu, speed multiplier reset to 1.0.");
+                RemoveSpeedModifiers();
+                PowerToys.ClearNotifications();
+                Debug.Log("[AdjustPlayerSpeed] Returned to MainMenu, speed reset to 1.0.");
             }
+            
+            Debug.Log($"[AdjustPlayerSpeed] Modifiers flag and level ready flag reset. Current speed multiplier: {_speedMultiplier:F2}");
         }
 
         public override void Update()
         {
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+                return;
+
             if (!_configIsEnabled.Value)
             {
                 RemoveSpeedModifiers();
@@ -63,22 +63,39 @@ namespace BaldiPowerToys.Features
             }
 
             var speedChanged = false;
+            var increased = false;
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 _speedMultiplier += _configSpeedIncrement.Value;
                 speedChanged = true;
+                increased = true;
             }
 
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 _speedMultiplier = Mathf.Max(0.1f, _speedMultiplier - _configSpeedIncrement.Value);
                 speedChanged = true;
+                increased = false;
             }
 
             if (speedChanged)
             {
                 Debug.Log($"[AdjustPlayerSpeed] Speed manually changed to: {_speedMultiplier:F2}x");
-                ShowNotification();
+                
+                string speedValue = $"<color=#FFE065><b>{_speedMultiplier:F1}×</b></color>";
+                string arrow = increased ? "↑" : "↓";
+                
+                string message = PowerToys.IsCyrillicPlusLoaded
+                    ? $"<b>Скорость {arrow}</b>\n{speedValue}"
+                    : $"<b>Speed {arrow}</b>\n{speedValue}";
+                
+                PowerToys.ShowNotification(
+                    message,
+                    duration: 1.0f,
+                    barColor: SpeedBarColor,
+                    backgroundColor: SpeedBgColor,
+                    sourceId: FEATURE_ID
+                );
             }
 
             if (_levelReady && _speedMultiplier != 1.0f)
@@ -89,96 +106,6 @@ namespace BaldiPowerToys.Features
             {
                 RemoveSpeedModifiers();
             }
-
-            UpdateNotificationAnimation();
-        }
-
-        public override void OnGUI()
-        {
-            if (!_isShowingNotification || (Singleton<CoreGameManager>.Instance != null && Singleton<CoreGameManager>.Instance.Paused)) return;
-
-            if (_notificationStyle == null)
-            {
-                _notificationStyle = new GUIStyle(GUI.skin.label)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    fontSize = 24,
-                    font = Plugin.ComicSans ?? GUI.skin.font,
-                    fontStyle = FontStyle.Bold,
-                    richText = true
-                };
-            }
-
-            if (_backgroundTexture == null || _borderTexture == null)
-            {
-                CreateTextures();
-            }
-
-            var text = PowerToys.IsRussian
-                ? $"<color=#80ff80>Скорость</color> <color=yellow>{_speedMultiplier:F1}x</color>"
-                : $"<color=#80ff80>Speed</color> <color=yellow>{_speedMultiplier:F1}x</color>";
-
-            const float width = 280;
-            const float height = 60;
-
-            var onScreenY = Screen.height - height - 30;
-            var offScreenY = Screen.height;
-
-            var easedProgress = Mathf.SmoothStep(0f, 1f, _animationProgress);
-            var currentY = Mathf.Lerp(offScreenY, onScreenY, easedProgress);
-
-            var rect = new Rect((Screen.width - width) / 2, currentY, width, height);
-
-            GuiUtils.DrawBoxWithBorder(rect, _backgroundTexture!, _borderTexture!);
-
-            var textRect = rect;
-            textRect.y -= (5f + BorderWidth) / 2f;
-
-            GuiUtils.DrawTextWithShadow(textRect, text, _notificationStyle);
-
-            if (!(_notificationTimer > 0)) return;
-            
-            var timerRect = new Rect(rect.x + BorderWidth, rect.yMax - BorderWidth - 5, rect.width - (BorderWidth * 2), 5);
-            DrawTimerBar(timerRect, Mathf.Max(0f, _notificationTimer) / NotificationTimeout);
-        }
-
-        private void ShowNotification()
-        {
-            _isShowingNotification = true;
-            _notificationTimer = NotificationTimeout;
-        }
-
-        private void UpdateNotificationAnimation()
-        {
-            if (_notificationTimer > 0)
-            {
-                _notificationTimer -= Time.deltaTime;
-                _animationProgress = Mathf.Min(1f, _animationProgress + Time.deltaTime * 4f);
-            }
-            else
-            {
-                _animationProgress = Mathf.Max(0f, _animationProgress - Time.deltaTime * 4f);
-                if (_animationProgress == 0f)
-                {
-                    _isShowingNotification = false;
-                }
-            }
-        }
-
-        private void CreateTextures()
-        {
-            _backgroundTexture = GuiUtils.CreateGradientTexture(128, new Color(0.2f, 0.2f, 0.2f, 0.95f), new Color(0.1f, 0.1f, 0.1f, 0.95f));
-            _borderTexture = GuiUtils.CreateSolidTexture(new Color(0.8f, 0.8f, 0.8f, 0.7f));
-            _timerBarBackgroundTexture = GuiUtils.CreateSolidTexture(new Color(0.1f, 0.1f, 0.1f, 0.5f));
-            _timerBarFillTexture = GuiUtils.CreateSolidTexture(new Color(1f, 0.9f, 0.2f));
-        }
-
-        private void DrawTimerBar(Rect rect, float progress)
-        {
-            if (_timerBarBackgroundTexture == null || _timerBarFillTexture == null) return;
-            GUI.DrawTexture(rect, _timerBarBackgroundTexture);
-            var fillRect = new Rect(rect.x, rect.y, rect.width * progress, rect.height);
-            GUI.DrawTexture(fillRect, _timerBarFillTexture);
         }
 
         private void ApplyOrUpdateSpeedModifiers()

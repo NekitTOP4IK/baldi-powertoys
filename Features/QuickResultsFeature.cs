@@ -30,11 +30,11 @@ namespace BaldiPowerToys.Features
         {
             if (!QuickResultsFeature.IsEnabled.Value)
             {
-                return true; // Run original method
+                return true;
             }
 
             __result = CustomResults(__instance, gameTime, timeBonus);
-            return false; // Skip original method
+            return false;
         }
 
         static IEnumerator CustomResults(ElevatorScreen instance, float gameTime, int timeBonus)

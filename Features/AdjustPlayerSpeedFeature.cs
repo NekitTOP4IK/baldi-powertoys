@@ -11,18 +11,15 @@ namespace BaldiPowerToys.Features
 {
     public class AdjustPlayerSpeedFeature : Feature
     {
-        // Configuration
         private static ConfigEntry<bool> _configIsEnabled = null!;
         private static ConfigEntry<float> _configSpeedIncrement = null!;
 
-        // Feature state
         private static float _speedMultiplier = 1.0f;
         private bool _isShowingNotification;
         private float _animationProgress;
         private float _notificationTimer;
-        private const float NotificationTimeout = 2f; // How long the notification stays after the last input
+        private const float NotificationTimeout = 2f;
 
-        // UI Resources
         private GUIStyle? _notificationStyle;
         private Texture2D? _backgroundTexture;
         private Texture2D? _borderTexture;
@@ -30,7 +27,6 @@ namespace BaldiPowerToys.Features
         private Texture2D? _timerBarFillTexture;
         private const float BorderWidth = 2f;
 
-        // MTM101BMDE compatibility
         private static readonly ValueModifier _walkSpeedModifier = new ValueModifier(0f, 1f);
         private static readonly ValueModifier _runSpeedModifier = new ValueModifier(0f, 1f);
         private static bool _modifiersApplied;
@@ -135,7 +131,6 @@ namespace BaldiPowerToys.Features
 
             GuiUtils.DrawBoxWithBorder(rect, _backgroundTexture!, _borderTexture!);
 
-            // Visually center the text by creating a slightly offset rect that accounts for the timer bar
             var textRect = rect;
             textRect.y -= (5f + BorderWidth) / 2f;
 

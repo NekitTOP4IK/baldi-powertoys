@@ -9,15 +9,12 @@ namespace BaldiPowerToys.Features
     {
         private static InfiniteStaminaFeature? _instance;
 
-        // Master switch from the settings menu
         private ConfigEntry<bool> _isEnabled = null!;
-        // Runtime state toggled by the hotkey
         internal bool _isActive = false;
         private bool _wasEnabled = true;
 
         internal static bool IsCyrillicPlusLoaded { get; private set; }
 
-        // UI State
         private enum UIState { Hidden, Showing, Exiting }
         private UIState _currentState = UIState.Hidden;
         private float _timer;
@@ -58,19 +55,17 @@ namespace BaldiPowerToys.Features
 
         void Update()
         {
-            // Detect if the feature was disabled in the settings menu
             if (_wasEnabled && !_isEnabled.Value)
             {
-                _isActive = false; // Force disable runtime state
+                _isActive = false;
             }
             _wasEnabled = _isEnabled.Value;
 
-            // If the master switch is off, do nothing else
             if (!_isEnabled.Value)
             {
                 if (_currentState != UIState.Hidden)
                 {
-                    _currentState = UIState.Exiting; // Hide any active notification
+                    _currentState = UIState.Exiting;
                 }
                 return;
             }
@@ -170,8 +165,6 @@ namespace BaldiPowerToys.Features
             {
                 if (_instance != null && _instance._isEnabled.Value && _instance._isActive)
                 {
-                    // We run this postfix so that the game can still detect running for the principal
-                    // Then we just restore the stamina back to full.
                     __instance.stamina = __instance.staminaMax;
                     Singleton<CoreGameManager>.Instance.GetHud(__instance.pm.playerNumber).SetStaminaValue(1f);
                 }

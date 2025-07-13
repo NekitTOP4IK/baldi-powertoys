@@ -13,7 +13,6 @@ namespace BaldiPowerToys.Features
 
         internal static bool IsCyrillicPlusLoaded { get; private set; }
 
-        // UI State
         private enum UIState { Hidden, Showing, Exiting }
         private UIState _currentState = UIState.Hidden;
         private float _timer;
@@ -31,7 +30,6 @@ namespace BaldiPowerToys.Features
             _isEnabled = Plugin.PublicConfig.Bind("NoIncorrectAnswers", "Enabled", false, "Enable the No Incorrect Answers feature.");
             IsCyrillicPlusLoaded = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("blayms.tbb.baldiplus.cyrillic");
 
-            // Initialize UI textures with the original colors
             _bgTexture = new Texture2D(1, 1);
             _bgTexture.SetPixel(0, 0, new Color(0.1f, 0.1f, 0.15f, 0.9f));
             _bgTexture.Apply();
@@ -98,14 +96,14 @@ namespace BaldiPowerToys.Features
                 {
                     alignment = TextAnchor.MiddleCenter,
                     fontSize = 20,
-                    font = Plugin.ComicSans, // Use shared font
+                    font = Plugin.ComicSans,
                     normal = { textColor = Color.white },
                     richText = true
                 };
             }
 
             const float boxWidth = 350, boxHeight = 70;
-            float easedProgress = 1 - Mathf.Pow(1 - _animationProgress, 3); // Ease-out cubic
+            float easedProgress = 1 - Mathf.Pow(1 - _animationProgress, 3);
 
             float startY = Screen.height;
             float endY = Screen.height - boxHeight - 20;
@@ -140,8 +138,6 @@ namespace BaldiPowerToys.Features
                 bool isPowered = poweredField(__instance);
                 bool[] playerIsHolding = playerIsHoldingField(__instance);
 
-                // This is the correct check, mirroring the game's original logic.
-                // The prefix runs only if the machine is powered AND the player is holding an answer.
                 if (!isPowered || playerIsHolding == null || player >= playerIsHolding.Length || !playerIsHolding[player])
                 {
                     return;

@@ -43,6 +43,15 @@ namespace BaldiPowerToys.Features
 
         public override void Update()
         {
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+            {
+                if (_isCameraActive)
+                {
+                    _isCameraActive = false;
+                }
+                return;
+            }
+
             if (!_configIsEnabled.Value)
             {
                 if (_isCameraActive)

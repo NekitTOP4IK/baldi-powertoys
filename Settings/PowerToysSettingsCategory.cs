@@ -16,12 +16,14 @@ namespace BaldiPowerToys.Settings
 
         public override void Build()
         {
-            // Container for all pages
+            var versionText = CreateText("VersionText", $"\n<color=#888888>v{PluginInfo.PLUGIN_VERSION}</color>", Vector3.zero, BaldiFonts.ComicSans18, TextAlignmentOptions.Center, new Vector2(300, 30), Color.gray, false);
+            versionText.transform.SetParent(transform, false);
+            (versionText.transform as RectTransform)!.anchoredPosition = new Vector2(0f, 100f);
+
             var pagesContainer = new GameObject("PagesContainer", typeof(RectTransform));
             pagesContainer.transform.SetParent(transform, false);
             (pagesContainer.transform as RectTransform)!.localPosition = new Vector3(139f, 4f, 0f);
 
-            // Helper to align text and move checkbox
             void SetupToggleLayout(MenuToggle toggle)
             {
                 var text = toggle.GetComponentInChildren<TextMeshProUGUI>();
@@ -31,7 +33,6 @@ namespace BaldiPowerToys.Settings
                 if (button != null && button.transform is RectTransform buttonRect) buttonRect.anchoredPosition += new Vector2(-150f, 0);
             }
 
-            // Page 1
             var page1 = CreatePage("Page1", pagesContainer.transform);
             _pages.Add(page1);
 
@@ -59,7 +60,6 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(gmToggle);
             gmToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { gmEnabled.Value = !gmEnabled.Value; });
 
-            // Page 2
             var page2 = CreatePage("Page2", pagesContainer.transform);
             _pages.Add(page2);
 
@@ -87,7 +87,16 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(fcToggle);
             fcToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { fcEnabled.Value = !fcEnabled.Value; });
 
-            // Pagination controls
+
+            var page3 = CreatePage("Page3", pagesContainer.transform);
+            _pages.Add(page3);
+
+            var iiEnabled = Plugin.PublicConfig.Bind("InfiniteItems", "Enabled", false, "Enable the Infinite Items feature.");
+            MenuToggle iiToggle = CreateToggle("IIToggle", "Infinite Items", iiEnabled.Value, Vector3.zero, 300f);
+            iiToggle.transform.SetParent(page3.transform, false);
+            SetupToggleLayout(iiToggle);
+            iiToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { iiEnabled.Value = !iiEnabled.Value; });
+
             var paginationContainer = new GameObject("Pagination", typeof(RectTransform));
             paginationContainer.transform.SetParent(transform, false);
             var containerRect = paginationContainer.transform as RectTransform;
@@ -97,14 +106,14 @@ namespace BaldiPowerToys.Settings
                 containerRect.anchorMax = new Vector2(0.5f, 0f);
                 containerRect.pivot = new Vector2(0.5f, 0f);
                 containerRect.anchoredPosition = new Vector2(0f, -130f);
-                containerRect.sizeDelta = new Vector2(250f, 40f); // Set size instead of scale
+                containerRect.sizeDelta = new Vector2(250f, 40f);
             }
 
             var prevButton = CreateButton(() => ChangePage(-1), menuArrowLeft, menuArrowLeftHighlight, "PrevPageButton", Vector3.zero);
             prevButton.transform.SetParent(paginationContainer.transform, false);
             (prevButton.transform as RectTransform)!.anchoredPosition = new Vector2(-54.6667f, 0f);
 
-            _pageText = CreateText("PageIndicator", "1/2", Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(80, 30), Color.black, false);
+            _pageText = CreateText("PageIndicator", "1/3", Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(80, 30), Color.black, false);
             _pageText.transform.SetParent(paginationContainer.transform, false);
             (_pageText.transform as RectTransform)!.anchoredPosition = Vector2.zero;
 
@@ -121,7 +130,7 @@ namespace BaldiPowerToys.Settings
             pageObject.transform.SetParent(parent, false);
 
             var vLayout = pageObject.AddComponent<VerticalLayoutGroup>();
-            vLayout.spacing = 15f; // Reduced spacing
+            vLayout.spacing = 15f;
             vLayout.childAlignment = TextAnchor.UpperLeft;
             vLayout.childControlHeight = false;
             vLayout.childForceExpandHeight = false;

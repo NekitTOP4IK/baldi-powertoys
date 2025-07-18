@@ -70,7 +70,8 @@ namespace BaldiPowerToys
                 typeof(NoIncorrectAnswersFeature),
                 typeof(AdjustPlayerSpeedFeature),
                 typeof(InfiniteStaminaFeature),
-                typeof(FreeCameraFeature)
+                typeof(FreeCameraFeature),
+                typeof(InfiniteItemsFeature)
             };
 
             foreach (var featureType in featureTypes)

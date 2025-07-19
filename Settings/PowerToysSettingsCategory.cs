@@ -97,6 +97,12 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(iiToggle);
             iiToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { iiEnabled.Value = !iiEnabled.Value; });
 
+            var ncEnabled = Plugin.PublicConfig.Bind("NoClip", "Enabled", false, "Enable the NoClip feature.");
+            MenuToggle ncToggle = CreateToggle("NCToggle", "NoClip", ncEnabled.Value, Vector3.zero, 300f);
+            ncToggle.transform.SetParent(page3.transform, false);
+            SetupToggleLayout(ncToggle);
+            ncToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { ncEnabled.Value = !ncEnabled.Value; });
+
             var paginationContainer = new GameObject("Pagination", typeof(RectTransform));
             paginationContainer.transform.SetParent(transform, false);
             var containerRect = paginationContainer.transform as RectTransform;

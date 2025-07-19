@@ -69,6 +69,16 @@ namespace BaldiPowerToys.Features
             }
         }
 
+        public void SetFreeCameraActive(bool active)
+        {
+            _isCameraActive = active;
+        }
+        
+        public bool IsFreeCameraActive()
+        {
+            return _isCameraActive;
+        }
+        
         private void ShowNotification()
         {
             string cameraText = PowerToys.IsCyrillicPlusLoaded ? "3D Камера" : "3D Camera";

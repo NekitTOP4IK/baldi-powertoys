@@ -15,6 +15,8 @@ namespace BaldiPowerToys.Features
         private static ConfigEntry<bool> _configIsEnabled = null!;
         private static ConfigEntry<float> _configSpeedIncrement = null!;
         private static float _speedMultiplier = 1.0f;
+        
+        public static float SpeedMultiplier => _speedMultiplier;
 
         private static readonly ValueModifier _walkSpeedModifier = new ValueModifier(0f, 1f);
         private static readonly ValueModifier _runSpeedModifier = new ValueModifier(0f, 1f);

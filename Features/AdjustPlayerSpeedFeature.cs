@@ -23,6 +23,13 @@ namespace BaldiPowerToys.Features
         private static bool _modifiersApplied;
         private static bool _levelReady;
 
+        private static float _holdStartTime;
+        private static bool _isHoldingUp;
+        private static bool _isHoldingDown;
+        private static float _nextChangeTime;
+        private const float INITIAL_HOLD_DELAY = 0.5f;
+        private const float FAST_CHANGE_INTERVAL = 0.05f;
+
         private static readonly Color SpeedBarColor = new Color(1f, 0.9f, 0.2f);
         private static readonly Color SpeedBgColor = new Color(0.15f, 0.15f, 0.15f, 0.95f);
 
@@ -39,6 +46,9 @@ namespace BaldiPowerToys.Features
             Debug.Log($"[AdjustPlayerSpeed] Scene changed from '{current.name}' to '{next.name}'.");
             _modifiersApplied = false;
             _levelReady = false;
+            
+            _isHoldingUp = false;
+            _isHoldingDown = false;
 
             PowerToys.ClearNotifications();
             
@@ -66,18 +76,57 @@ namespace BaldiPowerToys.Features
 
             var speedChanged = false;
             var increased = false;
+            
+
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 _speedMultiplier += _configSpeedIncrement.Value;
                 speedChanged = true;
                 increased = true;
+                _isHoldingUp = true;
+                _holdStartTime = Time.time;
+                _nextChangeTime = Time.time + INITIAL_HOLD_DELAY;
             }
-
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 _speedMultiplier = Mathf.Max(0.1f, _speedMultiplier - _configSpeedIncrement.Value);
                 speedChanged = true;
                 increased = false;
+                _isHoldingDown = true;
+                _holdStartTime = Time.time;
+                _nextChangeTime = Time.time + INITIAL_HOLD_DELAY;
+            }
+            
+
+            if (_isHoldingUp && Input.GetKey(KeyCode.UpArrow))
+            {
+                if (Time.time >= _nextChangeTime)
+                {
+                    _speedMultiplier += _configSpeedIncrement.Value;
+                    speedChanged = true;
+                    increased = true;
+                    _nextChangeTime = Time.time + FAST_CHANGE_INTERVAL;
+                }
+            }
+            else if (_isHoldingDown && Input.GetKey(KeyCode.DownArrow))
+            {
+                if (Time.time >= _nextChangeTime)
+                {
+                    _speedMultiplier = Mathf.Max(0.1f, _speedMultiplier - _configSpeedIncrement.Value);
+                    speedChanged = true;
+                    increased = false;
+                    _nextChangeTime = Time.time + FAST_CHANGE_INTERVAL;
+                }
+            }
+            
+
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                _isHoldingUp = false;
+            }
+            if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                _isHoldingDown = false;
             }
 
             if (speedChanged)

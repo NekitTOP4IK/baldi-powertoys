@@ -72,7 +72,8 @@ namespace BaldiPowerToys
                 typeof(InfiniteStaminaFeature),
                 typeof(FreeCameraFeature),
                 typeof(InfiniteItemsFeature),
-                typeof(NoClipFeature)
+                typeof(NoClipFeature),
+                typeof(AntiChalklesFeature)
             };
 
             foreach (var featureType in featureTypes)

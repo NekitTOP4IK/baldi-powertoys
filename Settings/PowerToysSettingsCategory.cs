@@ -103,6 +103,12 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(ncToggle);
             ncToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { ncEnabled.Value = !ncEnabled.Value; });
 
+            var acEnabled = Plugin.PublicConfig.Bind("AntiChalkles", "Enabled", false, "Enable the Anti-Chalkles feature to disable Chalkles completely.");
+            MenuToggle acToggle = CreateToggle("ACToggle", "Anti-Chalkles", acEnabled.Value, Vector3.zero, 300f);
+            acToggle.transform.SetParent(page3.transform, false);
+            SetupToggleLayout(acToggle);
+            acToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { acEnabled.Value = !acEnabled.Value; });
+
             var paginationContainer = new GameObject("Pagination", typeof(RectTransform));
             paginationContainer.transform.SetParent(transform, false);
             var containerRect = paginationContainer.transform as RectTransform;

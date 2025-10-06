@@ -109,6 +109,12 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(acToggle);
             acToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { acEnabled.Value = !acEnabled.Value; });
 
+            var sdEnabled = Plugin.PublicConfig.Bind("SkipDetention", "Enabled", false, "Enable the Skip Detention feature to instantly skip detention with a key press.");
+            MenuToggle sdToggle = CreateToggle("SDToggle", "Skip Detention", sdEnabled.Value, Vector3.zero, 300f);
+            sdToggle.transform.SetParent(page3.transform, false);
+            SetupToggleLayout(sdToggle);
+            sdToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { sdEnabled.Value = !sdEnabled.Value; });
+
             var paginationContainer = new GameObject("Pagination", typeof(RectTransform));
             paginationContainer.transform.SetParent(transform, false);
             var containerRect = paginationContainer.transform as RectTransform;

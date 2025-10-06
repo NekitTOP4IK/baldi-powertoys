@@ -166,7 +166,7 @@ namespace BaldiPowerToys.Features
                 string message = $"AntiChalkles: {status}";
                 PowerToys.ShowInfo(message, 2f, FEATURE_ID);
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 // Логирование ошибок при необходимости
             }
@@ -218,7 +218,7 @@ namespace BaldiPowerToys.Features
                 string message = $"AntiChalkles: {status}";
                 PowerToys.ShowInfo(message, 2f, FEATURE_ID);
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 // Логирование ошибок при необходимости
             }

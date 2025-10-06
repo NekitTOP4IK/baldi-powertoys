@@ -180,7 +180,7 @@ namespace BaldiPowerToys.Features
                         );
                     }
                 }
-                catch (System.Exception ex)
+                catch (System.Exception)
                 {
                     
                 }
@@ -256,7 +256,7 @@ namespace BaldiPowerToys.Features
                         }
                     }
                 }
-                catch (System.Exception ex)
+                catch (System.Exception)
                 {
                     
                 }

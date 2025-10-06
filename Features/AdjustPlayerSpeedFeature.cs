@@ -14,6 +14,8 @@ namespace BaldiPowerToys.Features
         private const string FEATURE_ID = "adjust_speed";
         private static ConfigEntry<bool> _configIsEnabled = null!;
         private static ConfigEntry<float> _configSpeedIncrement = null!;
+        private static ConfigEntry<KeyCode> _configIncreaseSpeedKey = null!;
+        private static ConfigEntry<KeyCode> _configDecreaseSpeedKey = null!;
         private static float _speedMultiplier = 1.0f;
         
         public static float SpeedMultiplier => _speedMultiplier;
@@ -37,6 +39,11 @@ namespace BaldiPowerToys.Features
         {
             _configIsEnabled = PowerToys.Config.Bind("AdjustPlayerSpeed", "Enabled", true, "Enable/disable the player speed adjustment feature.");
             _configSpeedIncrement = PowerToys.Config.Bind("AdjustPlayerSpeed", "SpeedIncrement", 0.1f, "The amount to increase/decrease speed by.");
+            _configIncreaseSpeedKey = PowerToys.Config.Bind("AdjustPlayerSpeed", "IncreaseSpeedKey", KeyCode.UpArrow,
+                KeyCodeUtils.GetEssentialKeyCodeDescription("Клавиша для увеличения скорости игрока"));
+            
+            _configDecreaseSpeedKey = PowerToys.Config.Bind("AdjustPlayerSpeed", "DecreaseSpeedKey", KeyCode.DownArrow,
+                KeyCodeUtils.GetEssentialKeyCodeDescription("Клавиша для уменьшения скорости игрока"));
             SceneManager.activeSceneChanged += OnSceneChanged;
             Debug.Log("[AdjustPlayerSpeed] Feature initialized.");
         }
@@ -78,7 +85,7 @@ namespace BaldiPowerToys.Features
             var increased = false;
             
 
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(_configIncreaseSpeedKey.Value))
             {
                 _speedMultiplier += _configSpeedIncrement.Value;
                 speedChanged = true;
@@ -87,7 +94,7 @@ namespace BaldiPowerToys.Features
                 _holdStartTime = Time.time;
                 _nextChangeTime = Time.time + INITIAL_HOLD_DELAY;
             }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            else if (Input.GetKeyDown(_configDecreaseSpeedKey.Value))
             {
                 _speedMultiplier = Mathf.Max(0.1f, _speedMultiplier - _configSpeedIncrement.Value);
                 speedChanged = true;
@@ -98,7 +105,7 @@ namespace BaldiPowerToys.Features
             }
             
 
-            if (_isHoldingUp && Input.GetKey(KeyCode.UpArrow))
+            if (_isHoldingUp && Input.GetKey(_configIncreaseSpeedKey.Value))
             {
                 if (Time.time >= _nextChangeTime)
                 {
@@ -108,7 +115,7 @@ namespace BaldiPowerToys.Features
                     _nextChangeTime = Time.time + FAST_CHANGE_INTERVAL;
                 }
             }
-            else if (_isHoldingDown && Input.GetKey(KeyCode.DownArrow))
+            else if (_isHoldingDown && Input.GetKey(_configDecreaseSpeedKey.Value))
             {
                 if (Time.time >= _nextChangeTime)
                 {
@@ -120,11 +127,11 @@ namespace BaldiPowerToys.Features
             }
             
 
-            if (Input.GetKeyUp(KeyCode.UpArrow))
+            if (Input.GetKeyUp(_configIncreaseSpeedKey.Value))
             {
                 _isHoldingUp = false;
             }
-            if (Input.GetKeyUp(KeyCode.DownArrow))
+            if (Input.GetKeyUp(_configDecreaseSpeedKey.Value))
             {
                 _isHoldingDown = false;
             }

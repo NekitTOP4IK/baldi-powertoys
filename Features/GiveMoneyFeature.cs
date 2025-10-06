@@ -1,6 +1,7 @@
 using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using BaldiPowerToys.Utils;
 
 namespace BaldiPowerToys.Features
 {
@@ -32,7 +33,8 @@ namespace BaldiPowerToys.Features
         void Awake()
         {
             _isEnabled = Plugin.PublicConfig.Bind("GiveMoney", "Enabled", false, "Enable the Give Money feature.");
-            _moneyKey = Plugin.PublicConfig.Bind("GiveMoney", "MoneyKey", KeyCode.Semicolon, "Key to get money.");
+            _moneyKey = PowerToys.Config.Bind("GiveMoney", "MoneyKey", KeyCode.Semicolon,
+                KeyCodeUtils.GetEssentialKeyCodeDescription("Клавиша для получения денег"));
             _moneyAmount = Plugin.PublicConfig.Bind("GiveMoney", "Amount", 100, "Amount of money to get per trigger.");
             _maxMoneyAmount = Plugin.PublicConfig.Bind("GiveMoney", "MaxAmount", 99999, "Maximum amount of money a player can have.");
             _initialDelay = Plugin.PublicConfig.Bind("GiveMoney.Holding", "InitialDelay", 0.5f, "Initial delay (seconds) before adding money when holding the key.");

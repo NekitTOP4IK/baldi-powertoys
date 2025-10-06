@@ -1,9 +1,9 @@
-using BaldiPowerToys.Utils;
 using BepInEx.Configuration;
 using HarmonyLib;
 using MTM101BaldAPI.PlusExtensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using BaldiPowerToys.Utils;
 
 namespace BaldiPowerToys.Features
 {
@@ -25,7 +25,8 @@ namespace BaldiPowerToys.Features
         {
             _configIsEnabled = PowerToys.Config.Bind("FreeCamera", "Enabled", true, "Enable/disable the 3D camera feature.");
             _configSensitivity = PowerToys.Config.Bind("FreeCamera", "Sensitivity", 1f, "Mouse sensitivity for the 3D camera.");
-            _configToggleKey = PowerToys.Config.Bind("FreeCamera", "ToggleKey", KeyCode.F1, "Key to toggle the 3D camera.");
+            _configToggleKey = PowerToys.Config.Bind("FreeCamera", "ToggleKey", KeyCode.F,
+                KeyCodeUtils.GetEssentialKeyCodeDescription("Клавиша для переключения свободной камеры"));
 
             _isCameraActive = false;
 

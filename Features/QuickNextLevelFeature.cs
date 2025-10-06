@@ -2,6 +2,7 @@ using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using BaldiPowerToys.UI;
+using BaldiPowerToys.Utils;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -23,7 +24,8 @@ namespace BaldiPowerToys.Features
         void Awake()
         {
             _isEnabled = Plugin.PublicConfig.Bind("QuickNextLevel", "Enabled", false, "Enable the Quick Next Level feature.");
-            _nextLevelKey = Plugin.PublicConfig.Bind("QuickNextLevel", "NextLevelKey", KeyCode.Quote, "Key to trigger the next level load.");
+            _nextLevelKey = PowerToys.Config.Bind("QuickNextLevel", "NextLevelKey", KeyCode.Quote,
+                KeyCodeUtils.GetEssentialKeyCodeDescription("Клавиша для перехода на следующий уровень"));
 
             SceneManager.activeSceneChanged += OnSceneChanged;
         }
@@ -194,4 +196,4 @@ namespace BaldiPowerToys.Features
             { KeyCode.RightControl, "Правый Ctrl" }
         };
     }
-} 
+}

@@ -1,5 +1,5 @@
 # 📦 Baldi's Powertoys
-![Latest Release](https://img.shields.io/github/v/release/NekitTOP4IK/baldi-powertoys) ![Game Version](https://img.shields.io/badge/Игра-Baldi's_Basics_Plus_v0.11-blue)
+![Latest Release](https://img.shields.io/github/v/release/NekitTOP4IK/baldi-powertoys) ![Game Version](https://img.shields.io/badge/Игра-Baldi's_Basics_Plus_v0.12.X-blue)
 
 **Baldi's Powertoys** — это мощный мод для [Baldi's Basics Plus](https://www.basicallygames.com/baldis-basics-plus), добавляющий удобные и полезные функции для игрока, разработчика и тестировщика.  
 Интегрирован прямо в игру и управляется через отдельную вкладку в настройках!

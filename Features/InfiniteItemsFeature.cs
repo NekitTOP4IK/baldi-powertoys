@@ -82,5 +82,22 @@ namespace BaldiPowerToys.Features
                 return true;
             }
         }
+
+        [HarmonyPatch(typeof(ItemManager))]
+        class ItemManager_Remove_Patch
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch("Remove")]
+            static bool Prefix(ItemManager __instance, Items itemToRemove)
+            {
+                var feature = PowerToys.GetInstance<InfiniteItemsFeature>();
+                if (feature != null && IsEnabled.Value && feature._isActive)
+                {
+                    return false;
+                }
+                
+                return true;
+            }
+        }
     }
 }

@@ -25,19 +25,19 @@ namespace BaldiPowerToys.Features
         static readonly AccessTools.FieldRef<ElevatorScreen, BigScreen> bigScreenField = AccessTools.FieldRefAccess<ElevatorScreen, BigScreen>("bigScreen");
 
         [HarmonyPrefix]
-        [HarmonyPatch("Results")]
-        static bool Results_Prefix(ref IEnumerator __result, ElevatorScreen __instance, float gameTime, int timeBonus)
+        [HarmonyPatch("ShowResults")]
+        static bool Results_Prefix(ElevatorScreen __instance, float time, int stickerBonus)
         {
             if (!QuickResultsFeature.IsEnabled.Value)
             {
                 return true;
             }
 
-            __result = CustomResults(__instance, gameTime, timeBonus);
+            __instance.StartCoroutine(CustomResults(__instance, time, stickerBonus));
             return false;
         }
 
-        static IEnumerator CustomResults(ElevatorScreen instance, float gameTime, int timeBonus)
+        static IEnumerator CustomResults(ElevatorScreen instance, float gameTime, int stickerBonus)
         {
             yield return null;
 
@@ -46,15 +46,15 @@ namespace BaldiPowerToys.Features
 
             busyField(instance) = true;
 
-            bigScreen.animator.speed = 10f;
-
+            // Start the swing down animation at normal speed
             bigScreen.animator.Play("SwingDown", -1, 0f);
-            float time = 0.1f;
+            float time = 1.5f; // Wait for the screen to swing down
             while (time > 0f)
             {
                 time -= Time.unscaledDeltaTime;
                 yield return null;
             }
+            
             bigScreen.resultsText.SetActive(value: true);
             TMP_Text toFill = bigScreen.time;
             string value = "";
@@ -87,17 +87,17 @@ namespace BaldiPowerToys.Features
                         toFill = bigScreen.multiplier;
                         value = ytpMultiplier + "X";
                         break;
-                    case 2:
+                    case 3:
                         bigScreen.totalText.SetActive(value: true);
                         bigScreen.total.gameObject.SetActive(value: true);
                         toFill = bigScreen.total;
-                        value = (Singleton<CoreGameManager>.Instance.GetPointsThisLevel(0) * ytpMultiplier).ToString();
+                        value = (Singleton<CoreGameManager>.Instance.GetPointsThisLevel(0) * ytpMultiplier + stickerBonus).ToString();
                         break;
-                    case 3:
+                    case 2:
                         bigScreen.gradeText.SetActive(value: true);
                         bigScreen.grade.gameObject.SetActive(value: true);
                         toFill = bigScreen.grade;
-                        value = Singleton<CoreGameManager>.Instance.Grade;
+                        value = stickerBonus.ToString();
                         break;
                 }
                 time = 0.05f;
@@ -108,32 +108,13 @@ namespace BaldiPowerToys.Features
                         case 4: toFill.text = Random.Range(0, 9999).ToString(); break;
                         case 0: toFill.text = Random.Range(0, 9999).ToString(); break;
                         case 1: toFill.text = Random.Range(1, 4) + "X"; break;
+                        case 3: toFill.text = Random.Range(0, 9999).ToString(); break;
                         case 2: toFill.text = Random.Range(0, 9999).ToString(); break;
-                        case 3: toFill.text = bigScreen.grades[Random.Range(0, bigScreen.grades.Length)]; break;
                     }
                     time -= Time.unscaledDeltaTime;
                     yield return null;
                 }
                 toFill.text = value;
-                switch (i)
-                {
-                    case 4:
-                        if (timeBonus > 0)
-                        {
-                            bigScreen.timeBonusText.SetActive(value: true);
-                            bigScreen.timeBonus.gameObject.SetActive(value: true);
-                            bigScreen.timeBonus.text = "+" + timeBonus + " YTPs";
-                        }
-                        break;
-                    case 3:
-                        if (CoreGameManager.gradeBonusVal[Singleton<CoreGameManager>.Instance.GradeVal] != 0)
-                        {
-                            bigScreen.gradeBonusText.SetActive(value: true);
-                            bigScreen.gradeBonus.gameObject.SetActive(value: true);
-                            bigScreen.gradeBonus.text = "+" + CoreGameManager.gradeBonusVal[Singleton<CoreGameManager>.Instance.GradeVal] + " YTPs";
-                        }
-                        break;
-                }
                 time = 0.05f;
                 while (time > 0f)
                 {
@@ -163,14 +144,13 @@ namespace BaldiPowerToys.Features
             bigScreen.multiplierText.gameObject.SetActive(value: false);
             bigScreen.multiplier.gameObject.SetActive(value: false);
             bigScreen.animator.Play("SwingUp", -1, 0f);
-            time = 0.1f;
+            time = 1.5f; // Wait for the screen to swing up
             while (time > 0f)
             {
                 time -= Time.unscaledDeltaTime;
                 yield return null;
             }
 
-            bigScreen.animator.speed = 1f;
             busyField(instance) = false;
         }
     }

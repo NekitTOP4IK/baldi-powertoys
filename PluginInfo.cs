@@ -4,6 +4,6 @@ namespace BaldiPowerToys
     {
         public const string PLUGIN_GUID = "nekitconstructions.baldipowertoys";
         public const string PLUGIN_NAME = "Baldi's PowerToys";
-        public const string PLUGIN_VERSION = "1.4.1";
+        public const string PLUGIN_VERSION = "1.5.0";
     }
 } 

@@ -15,6 +15,8 @@ namespace BaldiPowerToys.Features
         private static readonly Color EnabledBarColor = new Color(0.2f, 0.8f, 0.4f);
         private static readonly Color DisabledBarColor = new Color(0.8f, 0.2f, 0.2f);
         private static readonly Color BackgroundColor = new Color(0.12f, 0.12f, 0.12f, 0.95f);
+        
+        private static System.Collections.Generic.HashSet<GameObject> _spawnedItems = new System.Collections.Generic.HashSet<GameObject>();
 
         void Awake()
         {
@@ -72,8 +74,26 @@ namespace BaldiPowerToys.Features
                     if ((!disabled || (currentItem.overrideDisabled && __instance.maxItem >= 0)))
                     {
                         var itemInstance = Object.Instantiate(currentItem.item);
-                        if (itemInstance.Use(__instance.pm))
-                        {}
+                        // Track this spawned item BEFORE calling Use() to catch early Destroy() calls
+                        _spawnedItems.Add(itemInstance.gameObject);
+                        
+                        bool useResult = itemInstance.Use(__instance.pm);
+                        
+                        if (useResult)
+                        {
+                            // Call PostUse using reflection (some items need this)
+                            var postUseMethod = itemInstance.GetType().GetMethod("PostUse", 
+                                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                            if (postUseMethod != null)
+                            {
+                                postUseMethod.Invoke(itemInstance, new object[] { __instance.pm });
+                            }
+                        }
+                        else
+                        {
+                            // If Use() returned false, remove from tracking as it won't be used
+                            _spawnedItems.Remove(itemInstance.gameObject);
+                        }
                     }
                     
                     return false;
@@ -97,6 +117,48 @@ namespace BaldiPowerToys.Features
                 }
                 
                 return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(Object), "Destroy", new System.Type[] { typeof(Object) })]
+        class Object_Destroy_Patch
+        {
+            [HarmonyPrefix]
+            static bool Prefix(Object obj)
+            {
+                var feature = PowerToys.GetInstance<InfiniteItemsFeature>();
+                if (feature != null && IsEnabled.Value && feature._isActive)
+                {
+                    // Check if the object being destroyed is an Item from inventory
+                    if (obj is GameObject gameObject)
+                    {
+                        // Only block destruction if this is a spawned item from inventory
+                        if (_spawnedItems.Contains(gameObject))
+                        {
+                            var item = gameObject.GetComponent<Item>();
+                            if (item != null)
+                            {
+                                // Remove from tracking and allow deactivation
+                                _spawnedItems.Remove(gameObject);
+                                // Don't destroy the item, just deactivate it temporarily then reactivate
+                                gameObject.SetActive(false);
+                                feature.StartCoroutine(feature.ReactivateItem(gameObject));
+                                return false;
+                            }
+                        }
+                    }
+                }
+                
+                return true;
+            }
+        }
+
+        private System.Collections.IEnumerator ReactivateItem(GameObject item)
+        {
+            yield return null;
+            if (item != null)
+            {
+                item.SetActive(true);
             }
         }
     }

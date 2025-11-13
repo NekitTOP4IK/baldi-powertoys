@@ -122,7 +122,7 @@ namespace BaldiPowerToys.Features
             }
             else
             {
-                Singleton<CoreGameManager>.Instance.AddPoints(_moneyAmount.Value, 0, playAnimation: true, includeInLevelTotal: true);
+                Singleton<CoreGameManager>.Instance.AddPoints(_moneyAmount.Value, 0, true);
             }
         }
 

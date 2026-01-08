@@ -38,10 +38,10 @@ namespace BaldiPowerToys.Features
             {
                 _isActive = !_isActive;
                 string status = _isActive 
-                    ? (PowerToys.IsCyrillicPlusLoaded ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>")
-                    : (PowerToys.IsCyrillicPlusLoaded ? "<color=#FF8080>ВЫКЛ</color>" : "<color=#FF8080>OFF</color>");
+                    ? (PowerToys.IsRussian ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>")
+                    : (PowerToys.IsRussian ? "<color=#FF8080>ВЫКЛ</color>" : "<color=#FF8080>OFF</color>");
 
-                string featureName = PowerToys.IsCyrillicPlusLoaded ? "Бесконечная стамина" : "Infinite Stamina";
+                string featureName = PowerToys.IsRussian ? "Бесконечная стамина" : "Infinite Stamina";
                 string message = $"{featureName}: {status}";
 
                 PowerToys.ShowNotification(

@@ -74,7 +74,8 @@ namespace BaldiPowerToys
                 typeof(InfiniteItemsFeature),
                 typeof(NoClipFeature),
                 typeof(AntiChalklesFeature),
-                typeof(SkipDetentionFeature)
+                typeof(SkipDetentionFeature),
+                typeof(QuickRestockStoreFeature)
             };
 
             foreach (var featureType in featureTypes)

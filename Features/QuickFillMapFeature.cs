@@ -73,7 +73,7 @@ namespace BaldiPowerToys.Features
                     if (MapWasFilled)
                     {
                         PowerToys.ShowError(
-                            PowerToys.IsCyrillicPlusLoaded ? "Карта уже заполнена!" : "Map is already filled!",
+                            PowerToys.IsRussian ? "Карта уже заполнена!" : "Map is already filled!",
                             1.0f,
                             FEATURE_ID
                         );
@@ -92,7 +92,7 @@ namespace BaldiPowerToys.Features
             _confirmationTimer = ConfirmationTimeout;
             
             string keyName = _fillMapKey.Value.ToString();
-            string message = PowerToys.IsCyrillicPlusLoaded
+            string message = PowerToys.IsRussian
                 ? $"Нажмите <color=yellow>{keyName}</color> снова чтобы заполнить карту"
                 : $"Press <color=yellow>{keyName}</color> again to fill the map";
                 
@@ -121,7 +121,7 @@ namespace BaldiPowerToys.Features
                     PowerToysNotification.Instance.Hide(FEATURE_ID);
                     
                     PowerToys.ShowSuccess(
-                        PowerToys.IsCyrillicPlusLoaded ? "Карта заполнена!" : "Map filled!",
+                        PowerToys.IsRussian ? "Карта заполнена!" : "Map filled!",
                         1.0f,
                         FEATURE_ID
                     );

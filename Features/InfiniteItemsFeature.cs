@@ -40,10 +40,10 @@ namespace BaldiPowerToys.Features
             {
                 _isActive = !_isActive;
                 string status = _isActive 
-                    ? (PowerToys.IsCyrillicPlusLoaded ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>")
-                    : (PowerToys.IsCyrillicPlusLoaded ? "<color=#FF8080>ВЫКЛ</color>" : "<color=#FF8080>OFF</color>");
+                    ? (PowerToys.IsRussian ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>")
+                    : (PowerToys.IsRussian ? "<color=#FF8080>ВЫКЛ</color>" : "<color=#FF8080>OFF</color>");
 
-                string featureName = PowerToys.IsCyrillicPlusLoaded ? "Бесконечные предметы" : "Infinite Items";
+                string featureName = PowerToys.IsRussian ? "Бесконечные предметы" : "Infinite Items";
                 string message = $"{featureName}: {status}";
 
                 PowerToys.ShowNotification(
@@ -74,14 +74,12 @@ namespace BaldiPowerToys.Features
                     if ((!disabled || (currentItem.overrideDisabled && __instance.maxItem >= 0)))
                     {
                         var itemInstance = Object.Instantiate(currentItem.item);
-                        // Track this spawned item BEFORE calling Use() to catch early Destroy() calls
                         _spawnedItems.Add(itemInstance.gameObject);
                         
                         bool useResult = itemInstance.Use(__instance.pm);
                         
                         if (useResult)
                         {
-                            // Call PostUse using reflection (some items need this)
                             var postUseMethod = itemInstance.GetType().GetMethod("PostUse", 
                                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                             if (postUseMethod != null)
@@ -91,7 +89,6 @@ namespace BaldiPowerToys.Features
                         }
                         else
                         {
-                            // If Use() returned false, remove from tracking as it won't be used
                             _spawnedItems.Remove(itemInstance.gameObject);
                         }
                     }
@@ -129,18 +126,14 @@ namespace BaldiPowerToys.Features
                 var feature = PowerToys.GetInstance<InfiniteItemsFeature>();
                 if (feature != null && IsEnabled.Value && feature._isActive)
                 {
-                    // Check if the object being destroyed is an Item from inventory
                     if (obj is GameObject gameObject)
                     {
-                        // Only block destruction if this is a spawned item from inventory
                         if (_spawnedItems.Contains(gameObject))
                         {
                             var item = gameObject.GetComponent<Item>();
                             if (item != null)
                             {
-                                // Remove from tracking and allow deactivation
                                 _spawnedItems.Remove(gameObject);
-                                // Don't destroy the item, just deactivate it temporarily then reactivate
                                 gameObject.SetActive(false);
                                 feature.StartCoroutine(feature.ReactivateItem(gameObject));
                                 return false;

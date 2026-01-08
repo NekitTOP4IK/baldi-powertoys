@@ -194,10 +194,10 @@ namespace BaldiPowerToys.Features
         
         private void ShowNotification()
         {
-            string featureName = PowerToys.IsCyrillicPlusLoaded ? "NoClip" : "NoClip";
+            string featureName = PowerToys.IsRussian ? "NoClip" : "NoClip";
             string statusText = _isNoClipActive 
-                ? (PowerToys.IsCyrillicPlusLoaded ? "Включен" : "Enabled")
-                : (PowerToys.IsCyrillicPlusLoaded ? "Выключен" : "Disabled");
+                ? (PowerToys.IsRussian ? "Включен" : "Enabled")
+                : (PowerToys.IsRussian ? "Выключен" : "Disabled");
                 
             string status = _isNoClipActive
                 ? $"<color=#90FF90><b>{statusText}</b></color>"

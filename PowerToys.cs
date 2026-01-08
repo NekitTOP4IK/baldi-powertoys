@@ -11,8 +11,9 @@ namespace BaldiPowerToys
     public static class PowerToys 
     {
         public static ConfigFile Config { get; private set; } = null!;
-        public static bool IsRussian { get; private set; }
+        public static bool IsRussian => IsCyrillicPlusLoaded && !ForceEnglish;
         public static bool IsCyrillicPlusLoaded { get; private set; }
+        public static bool ForceEnglish { get; set; }
 
         private static GameObject _featureHolder = null!;
         private static readonly Dictionary<System.Type, Feature> _featureCache = new Dictionary<System.Type, Feature>();
@@ -22,11 +23,13 @@ namespace BaldiPowerToys
         public static void Init(ConfigFile config, bool isRussian, GameObject featureHolder) 
         {
             Config = config;
-            IsRussian = isRussian;
             _featureHolder = featureHolder;
             _featureCache.Clear();
             
             IsCyrillicPlusLoaded = Chainloader.PluginInfos.Any(x => x.Value.Metadata.GUID == "blayms.tbb.baldiplus.cyrillic");
+            
+            var forceEnglishConfig = config.Bind("General", "ForceEnglish", false, "Принудительно использовать английский язык (если установлена кириллица)");
+            ForceEnglish = forceEnglishConfig.Value;
             
             _notifications = featureHolder.AddComponent<PowerToysNotification>();
         }

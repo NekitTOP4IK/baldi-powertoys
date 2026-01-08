@@ -143,7 +143,7 @@ namespace BaldiPowerToys.Features
                 string speedValue = $"<color=#FFE065><b>{_speedMultiplier:F1}×</b></color>";
                 string arrow = increased ? "↑" : "↓";
                 
-                string message = PowerToys.IsCyrillicPlusLoaded
+                string message = PowerToys.IsRussian
                     ? $"<b>Скорость {arrow}</b>\n{speedValue}"
                     : $"<b>Speed {arrow}</b>\n{speedValue}";
                 

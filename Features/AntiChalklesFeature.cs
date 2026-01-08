@@ -36,7 +36,7 @@ namespace BaldiPowerToys.Features
                 {
                     chalkles.gameObject.SetActive(false);
                     
-                    string status = PowerToys.IsCyrillicPlusLoaded ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>";
+                    string status = PowerToys.IsRussian ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>";
                     string message = $"AntiChalkles: {status}";
                     PowerToys.ShowInfo(message, 2f, FEATURE_ID);
                 }
@@ -57,7 +57,6 @@ namespace BaldiPowerToys.Features
             {
                 if (!IsEnabled.Value) return true;
                 
-                // Блокируем продвижение таймера
                 return false;
             }
         }
@@ -76,7 +75,6 @@ namespace BaldiPowerToys.Features
             {
                 if (!IsEnabled.Value) return true;
                 
-                // Блокируем активацию Chalkles
                 return false;
             }
         }
@@ -95,7 +93,6 @@ namespace BaldiPowerToys.Features
             {
                 if (!IsEnabled.Value) return true;
                 
-                // Блокируем реакцию досок на вход игрока
                 return false;
             }
         }
@@ -114,19 +111,16 @@ namespace BaldiPowerToys.Features
             {
                 if (!IsEnabled.Value) return true;
                 
-                // Блокируем реакцию на прогресс активности
                 return false;
             }
         }
 
-        // Метод для принудительной деактивации всех активных Chalkles
         public static void DeactivateAllChalkles()
         {
             if (!IsEnabled.Value) return;
 
             try
             {
-                // Ищем все объекты ChalkFace в сцене
                 var chalkFaceType = AccessTools.TypeByName("ChalkFace");
                 if (chalkFaceType == null) return;
 
@@ -136,11 +130,9 @@ namespace BaldiPowerToys.Features
                 {
                     if (chalkFace == null) continue;
 
-                    // Принудительно отменяем все активности
                     var cancelMethod = AccessTools.Method(chalkFaceType, "Cancel");
                     cancelMethod?.Invoke(chalkFace, null);
 
-                    // Отключаем рендереры
                     var chalkRendererField = AccessTools.Field(chalkFaceType, "chalkRenderer");
                     var flyingRendererField = AccessTools.Field(chalkFaceType, "flyingRenderer");
                     
@@ -154,7 +146,6 @@ namespace BaldiPowerToys.Features
                         flyingRenderer.gameObject.SetActive(false);
                     }
 
-                    // Останавливаем аудио
                     var audManField = AccessTools.Field(chalkFaceType, "audMan");
                     if (audManField?.GetValue(chalkFace) is AudioManager audMan)
                     {
@@ -162,24 +153,21 @@ namespace BaldiPowerToys.Features
                     }
                 }
 
-                string status = PowerToys.IsCyrillicPlusLoaded ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>";
+                string status = PowerToys.IsRussian ? "<color=#90FF90>ВКЛ</color>" : "<color=#90FF90>ON</color>";
                 string message = $"AntiChalkles: {status}";
                 PowerToys.ShowInfo(message, 2f, FEATURE_ID);
             }
             catch (System.Exception)
             {
-                // Логирование ошибок при необходимости
             }
         }
 
-        // Метод для реактивации Chalkles при отключении фичи
         public static void ReactivateChalkles()
         {
             if (IsEnabled.Value) return;
 
             try
             {
-                // Ищем все объекты ChalkFace в сцене
                 var chalkFaceType = AccessTools.TypeByName("ChalkFace");
                 if (chalkFaceType == null) return;
 
@@ -189,7 +177,6 @@ namespace BaldiPowerToys.Features
                 {
                     if (chalkFace == null) continue;
 
-                    // Сбрасываем состояние на Idle
                     var idleStateType = AccessTools.TypeByName("ChalkFace_Idle");
                     if (idleStateType != null)
                     {
@@ -201,7 +188,6 @@ namespace BaldiPowerToys.Features
                             var stateField = AccessTools.Field(chalkFaceType, "state");
                             stateField?.SetValue(chalkFace, idleState);
                             
-                            // Обновляем state machine
                             var behaviorStateMachineField = AccessTools.Field(chalkFaceType.BaseType, "behaviorStateMachine");
                             var behaviorStateMachine = behaviorStateMachineField?.GetValue(chalkFace);
                             
@@ -214,32 +200,27 @@ namespace BaldiPowerToys.Features
                     }
                 }
 
-                string status = PowerToys.IsCyrillicPlusLoaded ? "<color=#FF8080>ВЫКЛ</color>" : "<color=#FF8080>OFF</color>";
+                string status = PowerToys.IsRussian ? "<color=#FF8080>ВЫКЛ</color>" : "<color=#FF8080>OFF</color>";
                 string message = $"AntiChalkles: {status}";
                 PowerToys.ShowInfo(message, 2f, FEATURE_ID);
             }
             catch (System.Exception)
             {
-                // Логирование ошибок при необходимости
             }
         }
 
         private bool _lastEnabledState = false;
 
-        // Отслеживание изменений настройки
         public override void Update()
         {
             if (!IsInitialized) return;
 
-            // Проверяем, что мы не в главном меню
             if (SceneManager.GetActiveScene().name == "MainMenu")
                 return;
 
-            // Проверяем, что игра готова к старту
             if (Singleton<CoreGameManager>.Instance == null || !Singleton<CoreGameManager>.Instance.readyToStart)
                 return;
 
-            // Проверяем изменение настройки
             if (IsEnabled.Value != _lastEnabledState)
             {
                 if (IsEnabled.Value)

@@ -84,7 +84,9 @@ namespace BaldiPowerToys.UI
                 sourceId
             );
 
-            if (_currentNotification != null && sourceId == _lastNotificationSource && (_liveConfig == null || _liveConfig.SourceId != sourceId))
+            _notificationQueue = new Queue<NotificationRequest>(_notificationQueue.Where(n => n.SourceId != sourceId));
+
+            if (_currentNotification != null && sourceId == _currentNotification.SourceId && (_liveConfig == null || _liveConfig.SourceId != sourceId))
             {
                 if (_liveConfig != null)
                 {

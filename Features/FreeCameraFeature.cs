@@ -82,10 +82,10 @@ namespace BaldiPowerToys.Features
         
         private void ShowNotification()
         {
-            string cameraText = PowerToys.IsCyrillicPlusLoaded ? "3D Камера" : "3D Camera";
+            string cameraText = PowerToys.IsRussian ? "3D Камера" : "3D Camera";
             string statusText = _isCameraActive 
-                ? (PowerToys.IsCyrillicPlusLoaded ? "Включена" : "Enabled")
-                : (PowerToys.IsCyrillicPlusLoaded ? "Выключена" : "Disabled");
+                ? (PowerToys.IsRussian ? "Включена" : "Enabled")
+                : (PowerToys.IsRussian ? "Выключена" : "Disabled");
 
             string status = _isCameraActive
                 ? $"<color=#80D5FF><b>{statusText}</b></color>"

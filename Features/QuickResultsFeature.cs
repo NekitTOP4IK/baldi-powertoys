@@ -46,9 +46,8 @@ namespace BaldiPowerToys.Features
 
             busyField(instance) = true;
 
-            // Start the swing down animation at normal speed
             bigScreen.animator.Play("SwingDown", -1, 0f);
-            float time = 1.5f; // Wait for the screen to swing down
+            float time = 1.5f;
             while (time > 0f)
             {
                 time -= Time.unscaledDeltaTime;
@@ -144,7 +143,7 @@ namespace BaldiPowerToys.Features
             bigScreen.multiplierText.gameObject.SetActive(value: false);
             bigScreen.multiplier.gameObject.SetActive(value: false);
             bigScreen.animator.Play("SwingUp", -1, 0f);
-            time = 1.5f; // Wait for the screen to swing up
+            time = 1.5f;
             while (time > 0f)
             {
                 time -= Time.unscaledDeltaTime;

@@ -68,7 +68,7 @@ namespace BaldiPowerToys.Features
             {
                 if (_isLoadingNextLevel)
                 {
-                    string message = PowerToys.IsCyrillicPlusLoaded 
+                    string message = PowerToys.IsRussian 
                         ? "<color=yellow><b>Загрузка...</b></color>\nПодождите, пока загрузится следующий уровень."
                         : "<color=yellow><b>Loading...</b></color>\nPlease wait until the next level loads.";
                     
@@ -112,7 +112,7 @@ namespace BaldiPowerToys.Features
             _confirmationTimer = ConfirmationTimeout;
             
             string keyName = GetLocalizedKeyName(_nextLevelKey.Value);
-            string message = PowerToys.IsCyrillicPlusLoaded 
+            string message = PowerToys.IsRussian 
                 ? $"Нажмите <color=yellow>{keyName}</color> ещё раз, чтобы пропустить уровень\nЭто автоматически завершит уровень."
                 : $"Press <color=yellow>{keyName}</color> again to skip level\nThis will autocomplete the level.";
             
@@ -121,7 +121,7 @@ namespace BaldiPowerToys.Features
         
         private void ShowWarning()
         {
-            string message = PowerToys.IsCyrillicPlusLoaded 
+            string message = PowerToys.IsRussian 
                 ? "<color=red><b>ВНИМАНИЕ!</b></color>\nНевозможно пропустить этот уровень или в это время."
                 : "<color=red><b>WARNING!</b></color>\nCannot skip this level or at this time.";
             
@@ -132,7 +132,7 @@ namespace BaldiPowerToys.Features
         {
             _isLoadingNextLevel = true;
             
-            string message = PowerToys.IsCyrillicPlusLoaded 
+            string message = PowerToys.IsRussian 
                 ? "<color=#4CFF4C><b>Уровень пропущен!</b></color>"
                 : "<color=#4CFF4C><b>Level skipped!</b></color>";
             
@@ -174,7 +174,7 @@ namespace BaldiPowerToys.Features
 
         private string GetLocalizedKeyName(KeyCode key)
         {
-            if (PowerToys.IsCyrillicPlusLoaded && RussianKeyMap.TryGetValue(key, out var localizedName))
+            if (PowerToys.IsRussian && RussianKeyMap.TryGetValue(key, out var localizedName))
             {
                 return $"<color=yellow>{localizedName}</color>";
             }

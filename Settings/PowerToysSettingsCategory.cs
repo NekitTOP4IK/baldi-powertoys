@@ -115,6 +115,28 @@ namespace BaldiPowerToys.Settings
             SetupToggleLayout(sdToggle);
             sdToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { sdEnabled.Value = !sdEnabled.Value; });
 
+            var page4 = CreatePage("Page4", pagesContainer.transform);
+            _pages.Add(page4);
+
+            var qrsEnabled = Plugin.PublicConfig.Bind("QuickRestockStore", "Enabled", true, "Включить/выключить быстрое обновление магазина");
+            MenuToggle qrsToggle = CreateToggle("QRSToggle", "Quick Restock Store", qrsEnabled.Value, Vector3.zero, 300f);
+            qrsToggle.transform.SetParent(page4.transform, false);
+            SetupToggleLayout(qrsToggle);
+            qrsToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => { qrsEnabled.Value = !qrsEnabled.Value; });
+
+            if (PowerToys.IsCyrillicPlusLoaded)
+            {
+                var forceEnglishEnabled = Plugin.PublicConfig.Bind("General", "ForceEnglish", false, "Принудительно использовать английский язык (если установлена кириллица)");
+                MenuToggle forceEnglishToggle = CreateToggle("ForceEnglishToggle", "Force English", forceEnglishEnabled.Value, Vector3.zero, 300f);
+                forceEnglishToggle.transform.SetParent(page4.transform, false);
+                SetupToggleLayout(forceEnglishToggle);
+                forceEnglishToggle.GetComponentInChildren<StandardMenuButton>(true).OnPress.AddListener(() => 
+                { 
+                    forceEnglishEnabled.Value = !forceEnglishEnabled.Value;
+                    PowerToys.ForceEnglish = forceEnglishEnabled.Value;
+                });
+            }
+
             var paginationContainer = new GameObject("Pagination", typeof(RectTransform));
             paginationContainer.transform.SetParent(transform, false);
             var containerRect = paginationContainer.transform as RectTransform;
@@ -131,7 +153,7 @@ namespace BaldiPowerToys.Settings
             prevButton.transform.SetParent(paginationContainer.transform, false);
             (prevButton.transform as RectTransform)!.anchoredPosition = new Vector2(-54.6667f, 0f);
 
-            _pageText = CreateText("PageIndicator", "1/3", Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(80, 30), Color.black, false);
+            _pageText = CreateText("PageIndicator", "1/4", Vector3.zero, BaldiFonts.ComicSans24, TextAlignmentOptions.Center, new Vector2(80, 30), Color.black, false);
             _pageText.transform.SetParent(paginationContainer.transform, false);
             (_pageText.transform as RectTransform)!.anchoredPosition = Vector2.zero;
 

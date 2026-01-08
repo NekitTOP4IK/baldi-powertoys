@@ -51,7 +51,7 @@ namespace BaldiPowerToys.Features
                 {
                     playerAnswers[player] = correctAnswer;
 
-                    string message = PowerToys.IsCyrillicPlusLoaded 
+                    string message = PowerToys.IsRussian 
                         ? "Неверный ответ исправлен!" 
                         : "Incorrect answer corrected!";
 
@@ -167,7 +167,7 @@ namespace BaldiPowerToys.Features
                             }
                         }
 
-                        string message = PowerToys.IsCyrillicPlusLoaded 
+                        string message = PowerToys.IsRussian 
                             ? "Неправильный ответ исправлен!" 
                             : "Incorrect answer corrected!";
 
@@ -242,7 +242,7 @@ namespace BaldiPowerToys.Features
                             matchingBalloonField.SetValue(revealedBalloon, firstBalloon);
                             firstBalloonMatchingField.SetValue(firstBalloon, revealedBalloon);
 
-                            string message = PowerToys.IsCyrillicPlusLoaded 
+                            string message = PowerToys.IsRussian 
                                 ? "Пара исправлена!" 
                                 : "Pair corrected!";
 
@@ -278,7 +278,7 @@ namespace BaldiPowerToys.Features
                 if (!IsEnabled.Value) return true;
                 
                 
-                string message = PowerToys.IsCyrillicPlusLoaded 
+                string message = PowerToys.IsRussian 
                     ? "Ошибка предотвращена!" 
                     : "Failure prevented!";
 

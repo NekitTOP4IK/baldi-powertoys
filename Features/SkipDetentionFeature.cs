@@ -55,7 +55,6 @@ namespace BaldiPowerToys.Features
 
                 var ec = coreGameManager.GetPlayer(0).ec;
                 
-                // Ищем активную detention room
                 foreach (var office in ec.offices)
                 {
                     var detentionFunction = office.functionObject?.GetComponent<DetentionRoomFunction>();
@@ -67,7 +66,6 @@ namespace BaldiPowerToys.Features
                     }
                 }
                 
-                // Если не нашли активное наказание - показываем ошибку
                 PowerToys.ShowError("Вы не наказаны!", 2f, "SkipDetention");
             }
             catch (System.Exception ex)
@@ -80,7 +78,6 @@ namespace BaldiPowerToys.Features
         {
             try
             {
-                // Используем рефлексию для доступа к приватному полю 'active'
                 var activeField = typeof(DetentionRoomFunction).GetField("active", BindingFlags.NonPublic | BindingFlags.Instance);
                 return activeField != null && (bool)activeField.GetValue(detentionFunction);
             }
@@ -94,14 +91,12 @@ namespace BaldiPowerToys.Features
         {
             try
             {
-                // Получаем приватное поле 'time' и устанавливаем его в 0
                 var timeField = typeof(DetentionRoomFunction).GetField("time", BindingFlags.NonPublic | BindingFlags.Instance);
                 if (timeField != null)
                 {
                     timeField.SetValue(detentionFunction, 0f);
                 }
 
-                // Разблокируем все двери офиса
                 UnlockOfficeDoors(detentionFunction);
             }
             catch (System.Exception ex)
@@ -114,14 +109,12 @@ namespace BaldiPowerToys.Features
         {
             try
             {
-                // Получаем приватное поле 'room' из базового класса RoomFunction
                 var roomField = typeof(RoomFunction).GetField("room", BindingFlags.NonPublic | BindingFlags.Instance);
                 if (roomField != null)
                 {
                     var room = roomField.GetValue(detentionFunction) as RoomController;
                     if (room?.doors != null)
                     {
-                        // Разблокируем все двери комнаты
                         foreach (var door in room.doors)
                         {
                             door.Unlock();
